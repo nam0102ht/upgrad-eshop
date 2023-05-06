@@ -12,31 +12,104 @@ import Container from '@mui/material/Container';
 import './Login.css'
 import { signIn } from '../../services/handleSignin';
 import { useNavigate } from "react-router-dom";
-import { Copyright } from '../form/Helper';
+import { Copyright, SnackbarCustom } from '../form/Helper';
 import PrimarySearchAppBar from '../navbar/PrimarySearchAppBar';
-  
+import { useDispatch, useSelector } from 'react-redux';
+import validator from 'validator';
+import { createTheme } from '@mui/material';
+import { ThemeProvider } from '@emotion/react';
+ 
+const theme = createTheme();
 
 export default function Login() {
+    const [errors, setErrors] = React.useState({});
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const user = useSelector(state => state.user);
+    const isLoggedIn = sessionStorage.getItem('isLogIn')
+    const [openFailure, setOpenFailure] = React.useState(false);
+    const [openPasswordFailure, setOpenPasswordFailure]= React.useState(false);
 
     React.useEffect(() => {
-      var isLogIn = localStorage.getItem("isLogIn");
-      if (isLogIn !== null && isLogIn !== '' && isLogIn === 'true') {
-        navigate("/home")
+      console.log(user)
+      if(isLoggedIn) {
+          navigate('/home');
       }
-    });
+    }, [user, navigate, isLoggedIn]);
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        var newData = {
-          username: data.get('email'),
-          password: data.get('password')
-        }
-        signIn(newData, navigate)
-      };
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      var newData = {
+        username: data.get('email'),
+        password: data.get('password')
+      }
+      let user = await signIn(newData)
+      console.log(user)
+      if (user === null || user.id === null || user.id === '') {
+        setOpenFailure(true)
+      }
+      dispatch({type: 'login', payload: user})
+    }
+
+    const validateComponent = (event) => {
+      const newErrors = validate(event.currentTarget.name, event.currentTarget.value, {...errors});
+      setErrors(newErrors);
+    }
+
+    const validate = (name, value, newErrors) => {
+      let error = '';
+      if(!value) {
+          error = 'Value required!'
+      } else {
+          switch(name) {
+              case 'email':
+                if(!validator.isEmail(value)) {
+                    error = 'Please enter a proper Email'
+                }
+                break;
+              default:
+                setErrors('Error')
+          }
+      }
+      if(error === '') {
+          delete newErrors[name]
+      } else {
+          newErrors[name] = error;
+      }
+      return newErrors;
+    }
+
+    if(openFailure) {
+      setTimeout(() => {
+        setOpenFailure(false);
+      }, 2000);
+    }
+    if(openPasswordFailure) {
+      setTimeout(() => {
+        setOpenPasswordFailure(false);
+      }, 2000);
+    }
+
+    const handleClose = () => {
+      if(openFailure) setOpenFailure(false)
+      if(openPasswordFailure) setOpenPasswordFailure(false)
+    }
 
     return (
+      <ThemeProvider theme={theme}>
+        <SnackbarCustom 
+          open={openFailure}
+          handleClose={handleClose}
+          message={'User not found'}
+          severity={'error'}
+        />
+        <SnackbarCustom 
+          open={openFailure}
+          handleClose={handleClose}
+          message={'The password or email that is entered is wrong'}
+          severity={'error'}
+        />
         <Container component="main">
           <PrimarySearchAppBar />
           <CssBaseline />
@@ -63,6 +136,8 @@ export default function Login() {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                onChange={validateComponent}
+                error={errors.hasOwnProperty('email')}
                 autoFocus
               />
               <TextField
@@ -73,6 +148,8 @@ export default function Login() {
                 label="Password"
                 type="password"
                 id="password"
+                onChange={validateComponent}
+                error={errors.hasOwnProperty('password')}
                 autoComplete="current-password"
               />
               <Button
@@ -94,5 +171,6 @@ export default function Login() {
           </Box>
           <Copyright sx={{ mt: 8, mb: 4 }} />
         </Container>
+      </ThemeProvider>
     )
 }

@@ -1,7 +1,7 @@
 export async function addProduct(data) {
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
     headers.append("Authorization", `Bearer ${token}`);
 
     var raw = JSON.stringify({
@@ -35,7 +35,7 @@ export async function addProduct(data) {
 export async function updateProduct(id, data) {
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
     headers.append("Authorization", `Bearer ${token}`);
 
     var raw = JSON.stringify({
@@ -104,7 +104,7 @@ export async function getProducts() {
 
 export async function deleteProduct(product) {
     var myHeaders = new Headers();
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
     myHeaders.append("Authorization", `Bearer ${token}`);
 
     var requestOptions = {

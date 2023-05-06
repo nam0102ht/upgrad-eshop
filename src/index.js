@@ -3,30 +3,20 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import reportWebVitals from './reportWebVitals';
-import Product from './component/products/Product';
-import Order from './component/orders/Order';
-import ModifyProduct from './component/products/ModifyProduct';
-import Products from './component/products/Products';
-import { Login } from '@mui/icons-material';
-import Register from './component/register/Register';
-import AddProduct from './component/products/AddProduct';
+import { Provider } from 'react-redux';
+import store from './common/user-store';
+import App from './component/App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-    <BrowserRouter>
-      <Routes>
-        <Route path="login" element={<Login />} />
-        <Route path="signup" element={<Register />} />
-        <Route path="home" element={<Products/>} />
-        <Route path="home/:message" element={<Products />} />
-        <Route path="addProduct" element={<AddProduct />} />
-        <Route path="products/detail/:productId" element={<Product />} />
-        <Route path="product/modify/:productId" element={<ModifyProduct />} />
-        <Route path="order" element={<Order />} />
-      </Routes>
-    </BrowserRouter>
-  , root
+    <React.StrictMode>
+      <Provider store={store}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Provider>
+    </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

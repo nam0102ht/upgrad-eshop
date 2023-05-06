@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { Typography } from '@mui/material';
+import { Snackbar, Typography } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 import * as React from 'react'
 import { Link } from 'react-router-dom';
@@ -25,3 +25,13 @@ export function Copyright(props) {
       </Typography>
     );
   }
+
+export function SnackbarCustom(props) {
+  return (
+    <Snackbar open={props.open} key={'topRight'} anchorOrigin={{ vertical: 'top', horizontal: "right" }} autoHideDuration={6000} onClose={props.handleClose}>
+      <Alert severity={props.severity} onClose={props.handleClose} sx={{ width: '100%' }}>
+        {props.message}
+      </Alert>
+    </Snackbar>
+  )
+}

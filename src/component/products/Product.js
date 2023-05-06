@@ -92,6 +92,11 @@ export default function Product(props) {
           setProducts(v)
         })
       } else {
+        if (newCategory === null || newCategory === '') {
+          setIsSearch(false)
+        } else {
+          setIsSearch(true)
+        }
         let prods = getProducts();
         prods.then(k => {
           let h = k.filter(v => {
@@ -105,7 +110,7 @@ export default function Product(props) {
     const handleSubmit = (event) => {
         event.preventDefault();
         let data = new FormData(event.currentTarget)
-        let user = JSON.parse(localStorage.getItem('profile'))
+        let user = JSON.parse(sessionStorage.getItem('user'))
         
         if (user === null) {
           setOpen(true)
@@ -118,7 +123,7 @@ export default function Product(props) {
         address.then(v => {
           if (v.status) {
             if (v.data.length !== 0) {
-              localStorage.setItem("address", JSON.stringify(v.data))
+              sessionStorage.setItem("address", JSON.stringify(v.data))
             }
             let order = {
               quantity: Number.parseInt(data.get('quatility')),

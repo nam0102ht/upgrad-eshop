@@ -87,7 +87,7 @@ export default function Order() {
       address.then(v => {
         if (v.status) {
           if (v.data.length !== 0) {
-            localStorage.setItem("address", JSON.stringify(v.data))
+            sessionStorage.setItem("address", JSON.stringify(v.data))
           }
           let order = {
             quantity: 1,
@@ -95,9 +95,8 @@ export default function Order() {
             product: product.id
           }
           let arrOrder = JSON.stringify([order])
-          localStorage.setItem('orders', arrOrder)
+          sessionStorage.setItem('orders', arrOrder)
           navigate(`/order`)
-  
         }
       })
     }

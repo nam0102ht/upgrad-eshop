@@ -1,6 +1,6 @@
 import jwt_decode from "jwt-decode";
 
-export async function signIn(data, navigate) {
+export async function signIn(data) {
     var signHeader = new Headers();
     signHeader.append("Content-Type", "application/json");
 
@@ -18,12 +18,12 @@ export async function signIn(data, navigate) {
 
     const response = await fetch("http://localhost:8080/api/auth/signin", requestOptions)
 
-    if(response.status === 401) {
-        console.log("Username or password not correct")
+    if (response.status === 401) {
+        return { id: '' }
     } else if (response.status === 200) {
         let stringToken = await response.text()
         let token = JSON.parse(stringToken).token
-        localStorage.setItem("token", token)
+        sessionStorage.setItem("token", token)
 
         signHeader.append("Authorization", "Bearer " + token);
 
@@ -49,13 +49,14 @@ export async function signIn(data, navigate) {
 
             let admin = roles.length !== 0 ? 'ADMIN' : 'USER'
 
-            localStorage.setItem("isLogIn", "true")
-            localStorage.setItem("user", JSON.stringify(user))
-            localStorage.setItem("profile", userProfile)
-            localStorage.setItem("isAdmin", admin)
-            navigate("/home")
+            sessionStorage.setItem("isLogIn", "true")
+            // localStorage.setItem("user", JSON.stringify(user))
+            // localStorage.setItem("profile", userProfile)
+            sessionStorage.setItem("isAdmin", admin)
+            return profile
         } else {
             console.log("Error")
+            return null
         }
     }
 }

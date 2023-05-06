@@ -78,9 +78,9 @@ export default function PrimarySearchAppBar(props) {
 
 
   React.useEffect(() => {
-      var login = localStorage.getItem("isLogIn")
+      var login = sessionStorage.getItem("isLogIn")
       if (login === 'true') {
-        let user = localStorage.getItem("user")
+        let user = sessionStorage.getItem("user")
         let currentDate = new Date()
         if (currentDate.getDate() > user.exp) {
           navigate("/login")
@@ -94,16 +94,8 @@ export default function PrimarySearchAppBar(props) {
   }, [navigate])
 
   const handleLogOut = () => {
-    localStorage.removeItem("isLogIn")
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
-    localStorage.removeItem("isAdmin")
-    localStorage.removeItem("orders")
-    localStorage.removeItem("productDetail")
-    localStorage.removeItem("product")
-    localStorage.removeItem("profile")
-    localStorage.removeItem("address")
-    localStorage.removeItem("products")
+    localStorage.clear()
+    sessionStorage.clear()
     navigate("/login")
   }
 
@@ -172,7 +164,7 @@ export default function PrimarySearchAppBar(props) {
                   <DivCustomize>
                     <TextLink href='/home'>Home</TextLink>
                   </DivCustomize>
-                  { localStorage.getItem('isAdmin') === 'ADMIN' ?
+                  { sessionStorage.getItem('isAdmin') === 'ADMIN' ?
                     <DivCustomize>
                       <TextLink href='/addProduct'>Add Product</TextLink>
                     </DivCustomize> : null

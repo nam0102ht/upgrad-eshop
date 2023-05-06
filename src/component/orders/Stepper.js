@@ -145,10 +145,9 @@ export default function StepperOrder(props) {
       setActiveStep(step);
     };
   
-    const handleComplete = (event, value) => {
+    const handleComplete = async (event, value) => {
       event.preventDefault();
       const newCompleted = completed;
-      console.log(activeStep)
       if (activeStep === 1 && (address.id === null || address.id === '')) {
         setOpen(true)
         setMessage("Please select address!")
@@ -157,8 +156,6 @@ export default function StepperOrder(props) {
         const newCompleted = completed;
         newCompleted[activeStep] = false;
         setCompleted(newCompleted);
-        console.log(activeStep)
-        console.log(newCompleted)
         return;
       } else {
         newCompleted[activeStep] = true;
@@ -166,21 +163,19 @@ export default function StepperOrder(props) {
         handleNext();
         if (activeStep === 2) {
           let orders = JSON.parse(localStorage.getItem('orders'))[0]
-          let res = createOrder(orders)
-          res.then(v => {
-            if (v.status) {
-              setOpen(true)
-              setMessage("Order placed successfully!")
-              setSeverity('success')
-              setTimeout(() => {
-                navigate(`/home/confirm`)
-              }, 3)
-            } else {
-              setOpen(true)
-              setMessage("Create order error")
-              setSeverity('error')
-            }
-          })
+          let res = await createOrder(orders)
+          if (res.status) {
+            setOpen(true)
+            setMessage("Order placed successfully!")
+            setSeverity('success')
+            setTimeout(() => {
+              navigate(`/home/confirm`)
+            }, 3)
+          } else {
+            setOpen(true)
+            setMessage("Create order error")
+            setSeverity('error')
+          }
         }
       }
     };

@@ -1,15 +1,15 @@
 export async function findAllAddress() {
     var myHeaders = new Headers();
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
 
     myHeaders.append("Authorization", `Bearer ${token}`)
     var requestOptions = {
-    method: 'GET',
-    headers: myHeaders,
-    redirect: 'follow'
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
     };
 
-    let strProfile = localStorage.getItem("profile")
+    let strProfile = sessionStorage.getItem("user")
     let profile = strProfile === null || strProfile === "" ?  null : JSON.parse(strProfile)
 
     if (profile === null) return {
@@ -43,7 +43,7 @@ export async function findAllAddress() {
 
 export async function findAddress(id) {
     var myHeaders = new Headers();
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
 
     myHeaders.append("Authorization", `Bearer ${token}`)
     var requestOptions = {
@@ -73,11 +73,11 @@ export async function findAddress(id) {
 export async function createAddress(address) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
 
     myHeaders.append("Authorization", `Bearer ${token}`)
 
-    let userId = JSON.parse(localStorage.getItem("profile")).id
+    let userId = JSON.parse(sessionStorage.getItem("user")).id
 
     var raw = JSON.stringify({
         "name": address.name,
@@ -114,11 +114,11 @@ export async function createAddress(address) {
 export async function updateAddress(id, address) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
 
     myHeaders.append("Authorization", `Bearer ${token}`)
 
-    let userId = localStorage.getItem("profile").id
+    let userId = sessionStorage.getItem("user").id
 
     var raw = JSON.stringify({
         "id": '',
@@ -133,10 +133,10 @@ export async function updateAddress(id, address) {
       });
 
     var requestOptions = {
-    method: 'PUT',
-    body: raw,
-    headers: myHeaders,
-    redirect: 'follow'
+        method: 'PUT',
+        body: raw,
+        headers: myHeaders,
+        redirect: 'follow'
     };
 
     let res = await fetch(`http://localhost:8080/api/addresses/${id}`, requestOptions)
@@ -155,7 +155,7 @@ export async function updateAddress(id, address) {
 export async function deleteAddress(id) {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    let token = localStorage.getItem("token")
+    let token = sessionStorage.getItem("token")
 
     myHeaders.append("Authorization", `Bearer ${token}`)
 

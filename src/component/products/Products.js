@@ -4,13 +4,13 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import './Products.css'
 import ProductCard from '../cards/ProductCard';
-import { Grid, Snackbar } from '@mui/material';
+import { Grid } from '@mui/material';
 import ToggleButtonCategory from '../toggleButton/ToggleButtonCategory';
 import { deleteProduct, getProducts } from '../../services/handleProducts';
 import PrimarySearchAppBar from "../navbar/PrimarySearchAppBar";
 import { useNavigate, useParams } from 'react-router-dom';
 import SortBy from '../sortby/SortBy';
-import { Alert } from '../form/Helper';
+import { SnackbarCustom } from '../form/Helper';
 
 export default function Products(props) {
   const param = useParams()
@@ -230,16 +230,12 @@ export default function Products(props) {
               flexDirection: 'column',
               alignItems: 'center',
           }}>
-            <Snackbar
-              anchorOrigin={{ vertical: 'top', horizontal: "right" }}
+            <SnackbarCustom
               open={open}
-              onClose={handleClose}
-              key={'topRight'}
-            >
-              <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
-                {message}
-              </Alert>
-            </Snackbar>
+              severity={severity}
+              message={message}
+              handleClose={handleClose}
+             />
             <Grid container spacing={3} justifyContent={'center'}>
             {
               products.map(v => {
@@ -252,7 +248,7 @@ export default function Products(props) {
                       prices={v.price}
                       description={v.description}
                       handleBuy={(event) => handleBuy(event, v)}
-                      isAdmin={localStorage.getItem('isAdmin')}
+                      isAdmin={sessionStorage.getItem('isAdmin')}
                       handleEdit={event => handleEdit(event, v)}
                       handleDelete={event => handleDelete(event, v)}
                       handleOnClick={event => handleClickDetail(event, v)}
