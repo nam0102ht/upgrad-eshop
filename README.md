@@ -2,6 +2,12 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Backend of this service
+
+Please clone and use it
+### [https://github.com/nam0102ht/ecommerce-upgrad-eshop-backend]
+
+
 ## Available Scripts
 
 In the project directory, you can run:

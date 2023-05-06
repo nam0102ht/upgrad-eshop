@@ -15,6 +15,7 @@ import { Alert } from '../form/Helper';
 export default function Products(props) {
   const param = useParams()
   const [category, setCategory] = React.useState('all');
+  var [openDialog, setOpenDialog] = React.useState(false)
   const [products, setProducts] = React.useState([{
     "name": "",
     "category": "",
@@ -27,6 +28,15 @@ export default function Products(props) {
   const navigate = useNavigate()
   const [message, setMessage] = React.useState("")
   const [open, setOpen] = React.useState(false)
+  const [product, setProduct] = React.useState({
+    "name": "",
+    "category": "",
+    "price": 0,
+    "description": "",
+    "manufacturer": "",
+    "availableItems": 0,
+    "imageUrl": ""
+  })
   const [severity, setSeverity] = React.useState("success")
 
   React.useEffect(() => {
@@ -64,22 +74,8 @@ export default function Products(props) {
 
   const handleDelete = async (event, product) => {
     event.preventDefault();
-    let res = await deleteProduct(product)
-    if (res.state) {
-      setOpen(true)
-      let mess = `${product.name} ${res.message}`
-      setMessage(mess)
-      setSeverity('success')
-      let prods = getProducts();
-      prods.then(v => {
-        setProducts(v)
-      })
-    } else {
-      setOpen(true)
-      let mess = `${res.message}`
-      setMessage(mess)
-      setSeverity('error')
-    }
+    setOpenDialog(true)
+    setProduct(product)
   }
 
   const handleClose = async (event) => {
@@ -170,6 +166,32 @@ export default function Products(props) {
     navigate(`/products/detail/${product.id}`)
   }
 
+  const handleCloseDialog = (event) => {
+    event.preventDefault();
+    setOpenDialog(false)
+  }
+
+  const handleOk = async (event) => {
+    event.preventDefault();
+    let res = await deleteProduct(product)
+    if (res.state) {
+      setOpen(true)
+      setMessage(`Product ${product.name} deleted successfully`)
+      setSeverity('success')
+      let prods = getProducts();
+      prods.then(v => {
+        setProducts(v)
+      })
+      setOpenDialog(false)
+    } else {
+      setOpen(true)
+      setMessage(`Product ${product.name} deleted failed`)
+      setSeverity('error')
+      setOpenDialog(false)
+    }
+  }
+
+
   return (
       <Container component="main">
         <PrimarySearchAppBar
@@ -234,6 +256,9 @@ export default function Products(props) {
                       handleEdit={event => handleEdit(event, v)}
                       handleDelete={event => handleDelete(event, v)}
                       handleOnClick={event => handleClickDetail(event, v)}
+                      handleCloseDialog={handleCloseDialog}
+                      handleOk={handleOk}
+                      openDialog={openDialog}
                     />
               </Grid>
               })

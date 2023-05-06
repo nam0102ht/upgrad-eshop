@@ -29,6 +29,9 @@ export default function ProductSearch(props ) {
                       handleDelete={event => props.handleDelete(event, v)}
                       isAdmin={props.isAdmin}
                       handleOnClick={event => props.handleClickDetail(event, v)}
+                      handleCloseDialog={props.handleCloseDialog}
+                      handleOk={props.handleOk}
+                      openDialog={props.openDialog}
                     />
               </Grid>
               })

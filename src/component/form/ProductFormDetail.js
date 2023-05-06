@@ -40,7 +40,7 @@ export default function ProductFormDetail(props) {
                       <Grid>
                         <Button disabled={true} variant="contained" style={{
                           borderRadius: '40px',
-                          backgroundColor: 'purple',
+                          backgroundColor: '#3f51b5',
                           color: 'white',
                           textTransform: 'none'
                         }}>

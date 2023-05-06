@@ -5,9 +5,10 @@ import { Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Typograph
 import styled from '@emotion/styled';
 import CreateIcon from '@mui/icons-material/Create';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ConfirmDialog from '../dialog/ConfirmDialog';
 
 const ButtonBuy = styled(Button) (( {theme}) => ({
-    backgroundColor: 'blue',
+    backgroundColor: '#3f51b5',
     color: "white"
   }));
 
@@ -18,6 +19,12 @@ const ButtonIcon = styled(Button) (( {theme}) => ({
 export default function ProductCard(props) {
 
     return (
+        <div>
+        <ConfirmDialog
+            open={props.openDialog}
+            handleOk={props.handleOk}
+            handleClose={props.handleCloseDialog}
+        />
         <Card itemID={props.id} key={props.id}>
             <CardMedia
                 sx={{ height: 200 }}
@@ -82,5 +89,6 @@ export default function ProductCard(props) {
             </Grid> 
             </CardActions>
         </Card>
+        </div>
     )
 }

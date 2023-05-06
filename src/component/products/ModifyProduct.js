@@ -14,6 +14,7 @@ export default function ModifyProduct(props) {
     const param = useParams()
     const [message, setMessage] = React.useState("")
     const [open, setOpen] = React.useState(false)
+    const [openDialog, setOpenDialog] = React.useState(false)
     const [severity, setSeverity] = React.useState("success")
     const [isSearch, setIsSearch] = React.useState(false)
     const [categories, setCategories] = React.useState([{ value: "", label: ""}])
@@ -72,13 +73,11 @@ export default function ModifyProduct(props) {
       const res = await updateProduct(product.id, newData)
       if (res.state) {
         setOpen(true)
-        let mess = `${newData.name} ${res.message}`
-        setMessage(mess)
         setSeverity('success')
+        setMessage(`Product ${newData.name} modified successfully`)
       } else {
         setOpen(true)
-        let mess = `${res.message}`
-        setMessage(mess)
+        setMessage(`Product ${newData.name} modified failed`)
         setSeverity('error')
       }
       
@@ -125,22 +124,7 @@ export default function ModifyProduct(props) {
     
       const handleDelete = async (event, product) => {
         event.preventDefault();
-        let res = await deleteProduct(product)
-        if (res.state) {
-          setOpen(true)
-          let mess = `${product.name} ${res.message}`
-          setMessage(mess)
-          setSeverity('success')
-          let prods = getProducts();
-          prods.then(v => {
-            setProducts(v)
-          })
-        } else {
-          setOpen(true)
-          let mess = `${res.message}`
-          setMessage(mess)
-          setSeverity('error')
-        }
+        setOpenDialog(true)
       }
 
     const handleSearch = (data) => {
@@ -186,6 +170,31 @@ export default function ModifyProduct(props) {
         setCategory(data)
     }
 
+    const handleOk = async (event, product) => {
+      event.preventDefault();
+      let res = await deleteProduct(product)
+      if (res.state) {
+        setOpen(true)
+        setMessage(`${product.name} deleted successfully`)
+        setSeverity('success')
+        let prods = getProducts();
+        prods.then(v => {
+          setProducts(v)
+        })
+        setOpenDialog(false)
+      } else {
+        setOpen(true)
+        setMessage(`Product ${product.name} deleted failed!`)
+        setSeverity('error')
+        setOpenDialog(false)
+      }
+    }
+
+    const handleCloseDialog = (event) => {
+      event.preventDefault();
+      setOpenDialog(false)
+    }
+
     return (
         <Container component="main">
             <PrimarySearchAppBar
@@ -226,6 +235,9 @@ export default function ModifyProduct(props) {
                         handleDelete={handleDelete}
                         navigate={navigate}
                         isAdmin={localStorage.getItem("isAdmin")}
+                        handleOk={handleOk}
+                        handleCloseDialog={handleCloseDialog}
+                        openDialog={openDialog}
                     />
                 }
             </Box>

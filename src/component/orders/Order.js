@@ -10,10 +10,20 @@ import { Alert } from '../form/Helper';
 
 export default function Order() {
     const [products, setProducts] = React.useState([])
+    const [productDelete, setProductDelete] = React.useState({
+      "name": "",
+      "category": "",
+      "price": 0,
+      "description": "",
+      "manufacturer": "",
+      "availableItems": 0,
+      "imageUrl": ""
+    })
     const [isSearch, setIsSearch] = React.useState(false)
-    var [message, setMessage] = React.useState("")
-    var [open, setOpen] = React.useState(false)
-    var [severity, setSeverity] = React.useState("success")
+    const [openDialog, setOpenDialog] = React.useState(false)
+    const [message, setMessage] = React.useState("")
+    const [open, setOpen] = React.useState(false)
+    const [severity, setSeverity] = React.useState("success")
     const navigate = useNavigate()
 
     React.useEffect(() => {
@@ -53,7 +63,6 @@ export default function Order() {
             setProducts(v)
           })
         }
-        console.log(val)
         if (val === null || val === '') {
           setIsSearch(false)
         }
@@ -100,22 +109,33 @@ export default function Order() {
   
     const handleDelete = async (event, product) => {
       event.preventDefault();
-      let res = await deleteProduct(product)
+      setOpenDialog(true)
+      setProductDelete(product)
+    }
+
+    const handleOk = async (event) => {
+      event.preventDefault();
+      let res = await deleteProduct(productDelete)
       if (res.state) {
         setOpen(true)
-        message = `${product.name} ${res.message}`
-        setMessage(message)
+        setMessage(`Product ${productDelete.name} deleted successfully`)
         setSeverity('success')
         let prods = getProducts();
         prods.then(v => {
           setProducts(v)
         })
+        setOpenDialog(false)
       } else {
         setOpen(true)
-        message = `${res.message}`
-        setMessage(message)
+        setMessage(`Product ${productDelete.name} deleted failed`)
         setSeverity('error')
+        setOpenDialog(false)
       }
+    }
+
+    const handleCloseDialog = (event) => {
+      event.preventDefault();
+      setOpenDialog(false)
     }
 
     return (
@@ -137,15 +157,18 @@ export default function Order() {
             <Box sx={{ width: '100%', marginTop: 14}}>
                 {
                   !isSearch ? <StepperOrder /> : 
-                  <ProductSearch 
-                    products={products}
-                    handleBuy={handleBuy}
-                    handleClickDetail={handleClickDetail}
-                    handleEdit={handleEdit}
-                    handleDelete={handleDelete}
-                    navigate={navigate}
-                    isAdmin={localStorage.getItem("isAdmin")}
-                  />
+                    <ProductSearch 
+                      products={products}
+                      handleBuy={handleBuy}
+                      handleClickDetail={handleClickDetail}
+                      handleEdit={handleEdit}
+                      handleDelete={handleDelete}
+                      navigate={navigate}
+                      isAdmin={localStorage.getItem("isAdmin")}
+                      handleOk={handleOk}
+                      handleCloseDialog={handleCloseDialog}
+                      openDialog={openDialog}
+                    />
                 }
             </Box>
         </Container>

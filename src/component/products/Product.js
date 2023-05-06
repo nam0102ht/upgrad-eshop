@@ -8,22 +8,33 @@ import ProductFormDetail from "../form/ProductFormDetail";
 import ProductSearch from "./ProductSearch";
 import { Alert } from "../form/Helper";
 import ToggleButtonCategory from "../toggleButton/ToggleButtonCategory";
+import ConfirmDialog from "../dialog/ConfirmDialog";
 
 
 export default function Product(props) {
-    var [message, setMessage] = React.useState("")
-    var [open, setOpen] = React.useState(false)
+    const [message, setMessage] = React.useState("")
+    const [open, setOpen] = React.useState(false)
+    const [openDialog, setOpenDialog] = React.useState(false)
     const [category, setCategory] = React.useState('all');
-    var [severity, setSeverity] = React.useState("success")
-    const [products, setProducts] = React.useState([
-      {
-        "name": "",
+    const [severity, setSeverity] = React.useState("success")
+    const [productDelete, setProductDelete] = React.useState({
+      "name": "",
       "category": "",
       "price": 0,
       "description": "",
       "manufacturer": "",
       "availableItems": 0,
       "imageUrl": ""
+    })
+    const [products, setProducts] = React.useState([
+      {
+        "name": "",
+        "category": "",
+        "price": 0,
+        "description": "",
+        "manufacturer": "",
+        "availableItems": 0,
+        "imageUrl": ""
     }
     ])
     const [product, setProduct] = React.useState(localStorage.getItem('productDetail'))
@@ -38,7 +49,6 @@ export default function Product(props) {
         localStorage.setItem('productDetail', v)
       })
     }, [params])
-
 
     const handleSearch = (data) => {
         let products = localStorage.getItem("products")
@@ -166,26 +176,37 @@ export default function Product(props) {
     const handleClose = async (event) => {
       event.preventDefault();
       setOpen(false)
-  }
+    }
   
     const handleDelete = async (event, product) => {
       event.preventDefault();
-      let res = await deleteProduct(product)
+      setOpenDialog(true)
+      setProductDelete(product)
+    }
+
+    const handleOk = async (event) => {
+      event.preventDefault();
+      let res = await deleteProduct(productDelete)
       if (res.state) {
         setOpen(true)
-        message = `${product.name} ${res.message}`
-        setMessage(message)
+        setMessage(`Product ${productDelete.name} deleted successfully`)
         setSeverity('success')
         let prods = getProducts();
         prods.then(v => {
           setProducts(v)
         })
+        setOpenDialog(false)
       } else {
         setOpen(true)
-        message = `${res.message}`
-        setMessage(message)
+        setMessage(`Product ${productDelete.name} deleted failed`)
         setSeverity('error')
+        setOpenDialog(false)
       }
+    }
+
+    const handleCloseDialog = (event) => {
+      event.preventDefault();
+      setOpenDialog(false)
     }
     
 
@@ -205,6 +226,11 @@ export default function Product(props) {
                 handleOnChange={handleSearch}
             />
             <CssBaseline />
+            <ConfirmDialog
+              open={openDialog}
+              handleOk={handleOk}
+              handleClose={handleCloseDialog}
+            />
             <Box sx={{
                 marginTop: 13,
                 display: 'flex',
@@ -234,6 +260,9 @@ export default function Product(props) {
                       handleDelete={handleDelete}
                       navigate={navigate}
                       isAdmin={localStorage.getItem("isAdmin")}
+                      handleOk={handleOk}
+                      handleCloseDialog={handleCloseDialog}
+                      openDialog={openDialog}
                     />}
             </Box>
         </Container>

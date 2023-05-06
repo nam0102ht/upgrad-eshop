@@ -13,6 +13,7 @@ import './Login.css'
 import { signIn } from '../../services/handleSignin';
 import { useNavigate } from "react-router-dom";
 import { Copyright } from '../form/Helper';
+import PrimarySearchAppBar from '../navbar/PrimarySearchAppBar';
   
 
 export default function Login() {
@@ -37,6 +38,7 @@ export default function Login() {
 
     return (
         <Container component="main">
+          <PrimarySearchAppBar />
           <CssBaseline />
           <Box
             sx={{

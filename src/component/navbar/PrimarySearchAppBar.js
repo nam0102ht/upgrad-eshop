@@ -111,7 +111,7 @@ export default function PrimarySearchAppBar(props) {
   return (
       <Box sx={{ display: "flex", flexDirection: "row", backgroundColor: '#3f51b5' }}>
         <CssBaseline />
-        <AppBar position="fixed" component="nav">
+        <AppBar position="fixed" component="nav" style={{backgroundColor: '#3f51b5' }}>
           <Toolbar className='groupIconAndSearch'>
             <IconButton
               size="large"

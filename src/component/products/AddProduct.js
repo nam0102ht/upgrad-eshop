@@ -13,6 +13,7 @@ export default function AddProduct(props) {
     const navigate = useNavigate()
     const [isSearch, setIsSearch] = React.useState(false)
     const [message, setMessage] = React.useState("")
+    const [openDialog, setOpenDialog] = React.useState(false)
     const [open, setOpen] = React.useState(false)
     const [severity, setSeverity] = React.useState("success")
     const [categories, setCategories] = React.useState([])
@@ -28,6 +29,15 @@ export default function AddProduct(props) {
     }])
     const [product, setProduct] = React.useState({
       "id": "",
+      "name": "",
+      "category": "",
+      "price": 0,
+      "description": "",
+      "manufacturer": "",
+      "availableItems": 0,
+      "imageUrl": ""
+    })
+    const [productDelete, setProductDelete] = React.useState({
       "name": "",
       "category": "",
       "price": 0,
@@ -60,11 +70,11 @@ export default function AddProduct(props) {
       const res = await addProduct(newData)
       if (res.state) {
         setOpen(true)
-        setMessage(`${newData.name} ${res.message}`)
+        setMessage(`Product ${newData.name} added successfully`)
         setSeverity('success')
       } else {
         setOpen(true)
-        setMessage(`${res.message}`)
+        setMessage(`Product ${newData.name} added failed`)
         setSeverity('error')
       }
     }
@@ -105,22 +115,8 @@ export default function AddProduct(props) {
   
     const handleDelete = async (event, product) => {
       event.preventDefault();
-      let res = await deleteProduct(product)
-      if (res.state) {
-        setOpen(true)
-        let mess = `${product.name} ${res.message}`
-        setMessage(mess)
-        setSeverity('success')
-        let prods = getProducts();
-        prods.then(v => {
-          setProducts(v)
-        })
-      } else {
-        setOpen(true)
-        let mess = `${res.message}`
-        setMessage(mess)
-        setSeverity('error')
-      }
+      setOpenDialog(true)
+      setProductDelete(product)
     }
 
     const handleClose = async (event) => {
@@ -166,12 +162,35 @@ export default function AddProduct(props) {
     if (val === null || val === '') {
       setIsSearch(false)
     }
-
-    console.log(isSearch)
   }
 
   const onChangeSelect = (data) => {
       setCategory(data)
+  }
+
+  const handleOk = async (event) => {
+    event.preventDefault();
+    let res = await deleteProduct(productDelete)
+    if (res.state) {
+      setOpen(true)
+      setMessage(`${productDelete.name} deleted successfully`)
+      setSeverity('success')
+      let prods = getProducts();
+      prods.then(v => {
+        setProducts(v)
+      })
+      setOpenDialog(false)
+    } else {
+      setOpen(true)
+      setMessage(`Product ${productDelete.name} deleted failed!`)
+      setSeverity('error')
+      setOpenDialog(false)
+    }
+  }
+
+  const handleCloseDialog = (event) => {
+    event.preventDefault();
+    setOpenDialog(false)
   }
 
 
@@ -217,6 +236,9 @@ export default function AddProduct(props) {
                   handleDelete={handleDelete}
                   navigate={navigate}
                   isAdmin={localStorage.getItem("isAdmin")}
+                  handleOk={handleOk}
+                  handleCloseDialog={handleCloseDialog}
+                  openDialog={openDialog}
               />
         }
         </Box>
