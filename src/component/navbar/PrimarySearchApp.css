@@ -1,0 +1,25 @@
+.groupIconAndSearch {
+    display: flex;
+    justify-content: space-between;
+}
+.groupIcon:hover {
+    background-color: unset;
+}
+.groupIconShoppingCart {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.groupIconShoppingCart > div {
+    font-size: 16px;
+    margin: 0.2em;
+}
+
+.groupLoginProduct > div {
+    display: flex;
+    justify-content: space-between;
+}
+.groupLoginProduct > div > div {
+    margin-left: 0.8em;
+    margin-right: 0.8em;
+}
