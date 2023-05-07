@@ -1,12 +1,11 @@
 import { Box, Container, CssBaseline, Snackbar } from '@mui/material'
 import * as React from 'react'
 import PrimarySearchAppBar from '../navbar/PrimarySearchAppBar'
-import { deleteProduct, getProducts } from '../../services/handleProducts';
+import { getProducts } from '../../services/handleProducts';
 import StepperOrder from './Stepper';
 import ProductSearch from '../products/ProductSearch';
 import { useNavigate } from 'react-router-dom';
-import { findAllAddress } from '../../services/handleAddress';
-import { Alert } from '../form/Helper';
+import { Alert, handleBuyHelper, handleDeleteOk, handleSearchHelper } from '../form/Helper';
 
 export default function Order() {
     const [products, setProducts] = React.useState([])
@@ -23,6 +22,7 @@ export default function Order() {
     const [openDialog, setOpenDialog] = React.useState(false)
     const [message, setMessage] = React.useState("")
     const [open, setOpen] = React.useState(false)
+    const isAdmin = sessionStorage.getItem('isAdmin')
     const [severity, setSeverity] = React.useState("success")
     const navigate = useNavigate()
 
@@ -36,36 +36,7 @@ export default function Order() {
     
 
     const handleSearch = (data) => {
-        let products = localStorage.getItem("products")
-        const val = data.target.value 
-        if (products === null && val !== null) {
-          setIsSearch(true)
-          let p = getProducts();
-          p.then(v => {
-            localStorage.setItem("products", JSON.stringify(v))
-  
-            const value = v.filter(h => {
-              return h.name.includes(val)
-            })
-            setProducts(value)
-          });
-        } else if (val !== null) {
-          setIsSearch(true)
-          const prods = JSON.parse(products)
-          const value = prods.filter(v => {
-            return v.name.toLowerCase().includes(val.toLowerCase())
-          })
-          setProducts(value)
-        } else {
-          setIsSearch(false)
-          let p = getProducts();
-          p.then(v => {
-            setProducts(v)
-          })
-        }
-        if (val === null || val === '') {
-          setIsSearch(false)
-        }
+      handleSearchHelper(data, setIsSearch, setProducts)
     }
 
     const handleClickDetail = (event, product) => {
@@ -80,25 +51,7 @@ export default function Order() {
     }
 
     const handleBuy = (event, product) => {
-      event.preventDefault();
-      let user = JSON.parse(localStorage.getItem('profile'))
-      
-      let address = findAllAddress()
-      address.then(v => {
-        if (v.status) {
-          if (v.data.length !== 0) {
-            sessionStorage.setItem("address", JSON.stringify(v.data))
-          }
-          let order = {
-            quantity: 1,
-            user: user.id,
-            product: product.id
-          }
-          let arrOrder = JSON.stringify([order])
-          sessionStorage.setItem('orders', arrOrder)
-          navigate(`/order`)
-        }
-      })
+      handleBuyHelper(event, product, setOpen, setMessage, setSeverity, navigate)
     }
 
     const handleClose = async (event) => {
@@ -113,23 +66,7 @@ export default function Order() {
     }
 
     const handleOk = async (event) => {
-      event.preventDefault();
-      let res = await deleteProduct(productDelete)
-      if (res.state) {
-        setOpen(true)
-        setMessage(`Product ${productDelete.name} deleted successfully`)
-        setSeverity('success')
-        let prods = getProducts();
-        prods.then(v => {
-          setProducts(v)
-        })
-        setOpenDialog(false)
-      } else {
-        setOpen(true)
-        setMessage(`Product ${productDelete.name} deleted failed`)
-        setSeverity('error')
-        setOpenDialog(false)
-      }
+      handleDeleteOk(event, productDelete, setProducts, setOpen, setMessage, setSeverity, setOpenDialog)
     }
 
     const handleCloseDialog = (event) => {
@@ -163,7 +100,7 @@ export default function Order() {
                       handleEdit={handleEdit}
                       handleDelete={handleDelete}
                       navigate={navigate}
-                      isAdmin={localStorage.getItem("isAdmin")}
+                      isAdmin={isAdmin}
                       handleOk={handleOk}
                       handleCloseDialog={handleCloseDialog}
                       openDialog={openDialog}

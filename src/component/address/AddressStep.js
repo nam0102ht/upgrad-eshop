@@ -29,6 +29,8 @@ export default function AddressStep(props) {
                         label="Name"
                         id="name"
                         autoComplete="name"
+                        onChange={props.handleOnChange}
+                        error={props.errors.hasOwnProperty('name')}
                         className='textAddress'
                     />
                     <TextField
@@ -39,6 +41,8 @@ export default function AddressStep(props) {
                         label="Contact Number"
                         id="contactNumber"
                         autoComplete="contactNumber"
+                        onChange={props.handleOnChange}
+                        error={props.errors.hasOwnProperty('contactNumber')}
                         className='textAddress'
                     />
                     <TextField
@@ -49,6 +53,8 @@ export default function AddressStep(props) {
                         label="Street"
                         id="street"
                         autoComplete="street"
+                        onChange={props.handleOnChange}
+                        error={props.errors.hasOwnProperty('street')}
                         className='textAddress'
                     />
                     <TextField
@@ -59,6 +65,8 @@ export default function AddressStep(props) {
                         label="City"
                         id="city"
                         autoComplete="city"
+                        onChange={props.handleOnChange}
+                        error={props.errors.hasOwnProperty('city')}
                         className='textAddress'
                     />
                     <TextField
@@ -69,6 +77,8 @@ export default function AddressStep(props) {
                         label="State"
                         id="state"
                         autoComplete="state"
+                        onChange={props.handleOnChange}
+                        error={props.errors.hasOwnProperty('state')}
                         className='textAddress'
                     />
                     <TextField
@@ -79,6 +89,8 @@ export default function AddressStep(props) {
                         label="Landmark"
                         id="landmark"
                         autoComplete="landmark"
+                        onChange={props.handleOnChange}
+                        error={props.errors.hasOwnProperty('landmark')}
                         className='textAddress'
                     />
                     <TextField
@@ -89,6 +101,8 @@ export default function AddressStep(props) {
                         label="Zip Code"
                         id="zipCode"
                         autoComplete="zipCode"
+                        onChange={props.handleOnChange}
+                        error={props.errors.hasOwnProperty('zipCode')}
                         className='textAddress'
                     />
                     <Button type='submit' variant='contained' style={{ width: '100%'}} >Save Address</Button>

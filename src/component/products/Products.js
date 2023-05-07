@@ -10,12 +10,13 @@ import { deleteProduct, getProducts } from '../../services/handleProducts';
 import PrimarySearchAppBar from "../navbar/PrimarySearchAppBar";
 import { useNavigate, useParams } from 'react-router-dom';
 import SortBy from '../sortby/SortBy';
-import { SnackbarCustom } from '../form/Helper';
+import { SnackbarCustom, handleBuyHelper, handleCategoryHelper, handleSearchWithoutIsSearchHelper } from '../form/Helper';
 
 export default function Products(props) {
   const param = useParams()
   const [category, setCategory] = React.useState('all');
   var [openDialog, setOpenDialog] = React.useState(false)
+  const isAdmin = sessionStorage.getItem('isAdmin')
   const [products, setProducts] = React.useState([{
     "name": "",
     "category": "",
@@ -54,17 +55,7 @@ export default function Products(props) {
   }, [param])
 
   const handleBuy = (event, product) => {
-    event.preventDefault();
-    let user = JSON.parse(localStorage.getItem('profile'))
-
-    if (user === null) {
-      setOpen(true)
-      setMessage('Please login to continue')
-      setSeverity('error')
-      return
-    }
-    
-    navigate(`/products/detail/${product.id}`)
+    handleBuyHelper(event, product, setOpen, setMessage, setSeverity, navigate)
   }
 
   const handleEdit = (event, product) => {
@@ -115,54 +106,16 @@ export default function Products(props) {
   }
 
   const handleCategory = (event, newCategory) => {
-        event.preventDefault();
-        setCategory(newCategory);
-        if (newCategory === 'all') {
-          let prods = getProducts();
-          prods.then(v => {
-            setProducts(v)
-          })
-        } else {
-          let prods = getProducts();
-          prods.then(k => {
-            let h = k.filter(v => {
-              return v.category === newCategory
-            })
-            setProducts(h)
-          })
-        }
+    handleCategoryHelper(event, newCategory, setProducts, setCategory)
   };
 
   const handleSearch = (data) => {
-      let products = localStorage.getItem("products")
-      const val = data.target.value 
-      if (products === null && val !== null) {
-        let p = getProducts();
-        p.then(v => {
-          localStorage.setItem("products", JSON.stringify(v))
-
-          const value = v.filter(h => {
-            return h.name.includes(val)
-          })
-          setProducts(value)
-        });
-      } else if (val !== null) {
-        const prods = JSON.parse(products)
-        const value = prods.filter(v => {
-          return v.name.toLowerCase().includes(val.toLowerCase())
-        })
-        setProducts(value)
-      } else {
-        let p = getProducts();
-        p.then(v => {
-          setProducts(v)
-        })
-      }
+      handleSearchWithoutIsSearchHelper(data, setProducts)
   }
 
   const handleClickDetail = (event, product) => {
     event.preventDefault();
-    localStorage.setItem("productDetail", product)
+    sessionStorage.setItem("productDetail", product)
     navigate(`/products/detail/${product.id}`)
   }
 
@@ -248,7 +201,7 @@ export default function Products(props) {
                       prices={v.price}
                       description={v.description}
                       handleBuy={(event) => handleBuy(event, v)}
-                      isAdmin={sessionStorage.getItem('isAdmin')}
+                      isAdmin={isAdmin}
                       handleEdit={event => handleEdit(event, v)}
                       handleDelete={event => handleDelete(event, v)}
                       handleOnClick={event => handleClickDetail(event, v)}

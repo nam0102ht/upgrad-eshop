@@ -6,7 +6,7 @@ import ConfirmOrder from "../confirmOrder/ConfirmOrder";
 import { createOrder } from "../../services/handleOrder";
 import { useNavigate } from "react-router-dom";
 import { createAddress, findAllAddress } from "../../services/handleAddress";
-import { Alert } from "../form/Helper";
+import { Alert, mapNewKeysAddress, validateAddress } from "../form/Helper";
 
 const steps = [
     'Items',
@@ -20,6 +20,7 @@ export default function StepperOrder(props) {
     const [completed, setCompleted] = React.useState({})
     const [message, setMessage] = React.useState("")
     const [open, setOpen] = React.useState(false)
+    const [errors, setErrors] = React.useState({});
     const [severity, setSeverity] = React.useState("success")
     const [address, setAddress] = React.useState({ 
       "id": '',
@@ -62,6 +63,25 @@ export default function StepperOrder(props) {
   const handleSubmit = (event) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
+      const newErrors = {...errors};
+      const formData = {};
+      for(let [name, value] of data) {
+          formData[name] = value;
+          validateAddress(name, value, newErrors, setErrors);
+      }
+      if(Object.keys(newErrors).length !== 0) {
+          setErrors(newErrors);
+          let mess = ''
+          let newKeys = mapNewKeysAddress(newErrors)
+          console.log('newErrors: ', newKeys)
+          newKeys.forEach(v => {
+            mess = `${mess} '${v}'`
+          })
+          setMessage(`${mess} is empty or not matched with format`)
+          setOpen(true)
+          setSeverity('error')
+          return;
+      }
       const addr = {
           "name": data.get("name"),
           "contactNumber": data.get("contactNumber"),
@@ -77,7 +97,7 @@ export default function StepperOrder(props) {
               setSeverity('success')
               setOpen(true)
               setMessage(`Address name: ${addr.name} saved successful`)
-              let ord = JSON.parse(localStorage.getItem("orders"))
+              let ord = JSON.parse(sessionStorage.getItem("orders"))
               let arr = [{
                   ...ord[0],
                   'address': v.data
@@ -86,7 +106,7 @@ export default function StepperOrder(props) {
                 ...addr,
                 id: v.data
               })
-              localStorage.setItem("orders", JSON.stringify(arr))
+              sessionStorage.setItem("orders", JSON.stringify(arr))
           } else {
               setSeverity('error')
               setOpen(true)
@@ -99,7 +119,7 @@ export default function StepperOrder(props) {
       setSeverity('success')
       setOpen(true)
       setMessage(`Choose: ${data.label} successful`)
-      let ord = JSON.parse(localStorage.getItem("orders"))
+      let ord = JSON.parse(sessionStorage.getItem("orders"))
       let arr = [{
           ...ord[0],
           'address': data.value
@@ -107,7 +127,7 @@ export default function StepperOrder(props) {
       setAddress({
         'id': data.value
       })
-      localStorage.setItem("orders", JSON.stringify(arr))
+      sessionStorage.setItem("orders", JSON.stringify(arr))
   }
 
 
@@ -162,7 +182,7 @@ export default function StepperOrder(props) {
         setCompleted(newCompleted);
         handleNext();
         if (activeStep === 2) {
-          let orders = JSON.parse(localStorage.getItem('orders'))[0]
+          let orders = JSON.parse(sessionStorage.getItem('orders'))[0]
           let res = await createOrder(orders)
           if (res.status) {
             setOpen(true)
@@ -186,6 +206,15 @@ export default function StepperOrder(props) {
       setOpen(false)
     }
     
+
+    const handleOnChangeInputAddress = (event) => {
+      const name = event.target.name;
+      const value = event.target.value
+      const newErrors = validateAddress(name, value, {...errors}, setErrors);
+      setErrors(newErrors)
+      console.log(newErrors)
+    }
+
     return (
         <Box sx={{ width: '100%' }}>
             <Snackbar
@@ -223,6 +252,8 @@ export default function StepperOrder(props) {
                                 handleSubmit={handleSubmit}
                                 optionAddress={optionAddress}
                                 handleChangeAddress={handleChangeAddress}
+                                errors={errors}
+                                handleOnChange={handleOnChangeInputAddress}
                             /> : activeStep === 2 ? <ConfirmOrder /> : <></>
                         }
                     </Container>

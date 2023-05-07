@@ -1,12 +1,11 @@
 import * as React from 'react';
 import AddProductForm from '../form/AddProductForm';
 import { Box, Container, Snackbar } from '@mui/material';
-import { deleteProduct, getCategory, getProductDetail, getProducts, updateProduct } from '../../services/handleProducts';
+import { getCategory, getProductDetail, updateProduct } from '../../services/handleProducts';
 import PrimarySearchAppBar from '../navbar/PrimarySearchAppBar';
-import { Alert } from '../form/Helper';
+import { Alert, handleBuyHelper, handleDeleteHelper, handleDeleteOk, handleSearchHelper, mapNewKeysProduct, validateProduct } from '../form/Helper';
 import ProductSearch from './ProductSearch';
 import { useNavigate, useParams } from 'react-router-dom';
-import { findAllAddress } from '../../services/handleAddress';
 
 
 export default function ModifyProduct(props) {
@@ -16,7 +15,9 @@ export default function ModifyProduct(props) {
     const [open, setOpen] = React.useState(false)
     const [openDialog, setOpenDialog] = React.useState(false)
     const [severity, setSeverity] = React.useState("success")
+    const [errors, setErrors] = React.useState({});
     const [isSearch, setIsSearch] = React.useState(false)
+    const isAdmin = sessionStorage.getItem('isAdmin')
     const [categories, setCategories] = React.useState([{ value: "", label: ""}])
     const [category, setCategory] = React.useState({ value: "", label: ""})
     const [products, setProducts] = React.useState([{
@@ -60,6 +61,24 @@ export default function ModifyProduct(props) {
     const handleSubmit = async (event) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
+      const newErrors = {...errors};
+      const formData = {};
+      for(let [name, value] of data) {
+          formData[name] = value;
+          validateProduct(name, value, newErrors, setErrors);
+      }
+      if(Object.keys(newErrors).length !== 0) {
+          setErrors(newErrors);
+          let mess = ''
+          let newKeys = mapNewKeysProduct(newErrors)
+          newKeys.forEach(v => {
+            mess = `${mess} '${v}'`
+          })
+          setMessage(`${mess} is empty or not matched with format`)
+          setOpen(true)
+          setSeverity('error')
+          return;
+      }
       var newData = {
         name: data.get('name'),
         category: data.get('category'),
@@ -89,81 +108,34 @@ export default function ModifyProduct(props) {
         navigate(`/products/detail/${product.id}`)
       }
   
-      const handleEdit = (event, product) => {
-        event.preventDefault();
-        navigate(`/product/modify/${product.id}`)
-      }
-  
-      const handleBuy = (event, product) => {
-        event.preventDefault();
-        let user = JSON.parse(localStorage.getItem('profile'))
-        
-        let address = findAllAddress()
-        address.then(v => {
-          if (v.status) {
-            if (v.data.length !== 0) {
-              localStorage.setItem("address", JSON.stringify(v.data))
-            }
-            let order = {
-              quantity: 1,
-              user: user.id,
-              product: product.id
-            }
-            let arrOrder = JSON.stringify([order])
-            localStorage.setItem('orders', arrOrder)
-            navigate(`/order`)
-    
-          }
-        })
-      }
-  
-      const handleClose = async (event) => {
+    const handleEdit = (event, product) => {
+      event.preventDefault();
+      navigate(`/product/modify/${product.id}`)
+    }
+
+    const handleBuy = (event, product) => {
+      handleBuyHelper(event, product, setOpen, setMessage, setSeverity, navigate)
+    }
+
+    const handleClose = async (event) => {
         event.preventDefault();
         setOpen(false)
     }
     
-      const handleDelete = async (event, product) => {
-        event.preventDefault();
-        setOpenDialog(true)
-      }
+    const handleDelete = async (event, product) => {
+      handleDeleteHelper(event, setOpenDialog)
+    }
 
     const handleSearch = (data) => {
-        let products = localStorage.getItem("products")
-        const val = data.target.value 
-        if (products === null && val !== null) {
-          setIsSearch(true)
-          let p = getProducts();
-          p.then(v => {
-            localStorage.setItem("products", JSON.stringify(v))
-  
-            const value = v.filter(h => {
-              return h.name.includes(val)
-            })
-            setProducts(value)
-          });
-        } else if (val !== null) {
-          setIsSearch(true)
-          const prods = JSON.parse(products)
-          const value = prods.filter(v => {
-            return v.name.toLowerCase().includes(val.toLowerCase())
-          })
-          setProducts(value)
-        } else {
-          setIsSearch(false)
-          let p = getProducts();
-          p.then(v => {
-            setProducts(v)
-          })
-        }
-        if (val === null || val === '') {
-          setIsSearch(false)
-        }
+      handleSearchHelper(data, setIsSearch, setProducts)
     }
 
     const onChange = (event) => {
-        const name = event.target.name;
-        const value = event.target.value
-        setProduct(values => ({...values, [name]: value}))
+      const name = event.target.name;
+      const value = event.target.value
+      const newErrors = validateProduct(name, value, {...errors}, setErrors);
+      setErrors(newErrors)
+      setProduct(values => ({...values, [name]: value}))
     }
 
     const onChangeSelect = (data) => {
@@ -171,23 +143,7 @@ export default function ModifyProduct(props) {
     }
 
     const handleOk = async (event, product) => {
-      event.preventDefault();
-      let res = await deleteProduct(product)
-      if (res.state) {
-        setOpen(true)
-        setMessage(`${product.name} deleted successfully`)
-        setSeverity('success')
-        let prods = getProducts();
-        prods.then(v => {
-          setProducts(v)
-        })
-        setOpenDialog(false)
-      } else {
-        setOpen(true)
-        setMessage(`Product ${product.name} deleted failed!`)
-        setSeverity('error')
-        setOpenDialog(false)
-      }
+      handleDeleteOk(event, product, setProducts, setOpen, setMessage, setSeverity, setOpenDialog)
     }
 
     const handleCloseDialog = (event) => {
@@ -227,6 +183,7 @@ export default function ModifyProduct(props) {
                         title='Modify Product'
                         handleOnChange={onChange}
                         handleOnChangeSelect={onChangeSelect}
+                        errors={errors}
                     /> : <ProductSearch 
                         products={products}
                         handleBuy={handleBuy}
@@ -234,7 +191,7 @@ export default function ModifyProduct(props) {
                         handleEdit={handleEdit}
                         handleDelete={handleDelete}
                         navigate={navigate}
-                        isAdmin={localStorage.getItem("isAdmin")}
+                        isAdmin={isAdmin}
                         handleOk={handleOk}
                         handleCloseDialog={handleCloseDialog}
                         openDialog={openDialog}

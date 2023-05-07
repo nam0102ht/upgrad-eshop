@@ -61,7 +61,7 @@ export async function signIn(data) {
     }
 }
 
-export function signUp(data, navigate) {
+export async function signUp(data, navigate) {
     var signHeader = new Headers();
     signHeader.append("Content-Type", "application/json");
 
@@ -74,18 +74,20 @@ export function signUp(data, navigate) {
         redirect: 'follow'
     };
 
-    fetch("http://localhost:8080/api/auth/signup", requestOptions)
-    .then(response => {
-        if(response.status === 401) {
-            console.log("Username or password not correct")
-        } else if (response.status === 200) {
-            navigate("/login")
+    let res = await fetch("http://localhost:8080/api/auth/signup", requestOptions)
+    if(res.status === 401) {
+        return {
+            status: false
         }
-    })
-    .then(result => {
-        console.log(result)
-    })
-    .catch(error => console.log('error', error));
+    } else if (res.status === 200) {
+        return {
+            status: true
+        }
+    } else {
+        return {
+            status: false
+        }
+    }
 }
 
 export function decodeJwt(token) {

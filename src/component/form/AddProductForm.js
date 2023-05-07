@@ -14,6 +14,7 @@ export default function AddProductForm(props) {
           {props.title}
         </Typography>
         <Box component='form'
+              noValidate
               onSubmit={props.handleSubmit}
               sx={{
                   display: 'flex',
@@ -32,6 +33,7 @@ export default function AddProductForm(props) {
                   label="Name"
                   name="name"
                   autoComplete="name"
+                  error={props.errors.hasOwnProperty('name')}
                   autoFocus
                 />
                 <CreatableSelectCustomize 
@@ -55,6 +57,7 @@ export default function AddProductForm(props) {
                   onChange={props.handleOnChange}
                   value={props.product.manufacturer}
                   autoComplete="manufacturer"
+                  error={props.errors.hasOwnProperty('manufacturer')}
                   autoFocus
                 />
                 <TextField
@@ -67,6 +70,7 @@ export default function AddProductForm(props) {
                   autoComplete="availableItems"
                   onChange={props.handleOnChange}
                   value={props.product.availableItems}
+                  error={props.errors.hasOwnProperty('availableItems')}
                   autoFocus
                 />
                 <TextField
@@ -79,6 +83,7 @@ export default function AddProductForm(props) {
                   autoComplete="price"
                   onChange={props.handleOnChange}
                   value={props.product.price}
+                  error={props.errors.hasOwnProperty('price')}
                   autoFocus
                 />
                 <TextField
@@ -90,6 +95,7 @@ export default function AddProductForm(props) {
                   name="imageUrl"
                   onChange={props.handleOnChange}
                   value={props.product.imageUrl}
+                  error={props.errors.hasOwnProperty('imageUrl')}
                   autoComplete="imageUrl"
                   autoFocus
                 />

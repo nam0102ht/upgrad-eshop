@@ -6,10 +6,10 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 
 export default function OrderProduct() {
     const [order, setOrder] = React.useState({quantity: 1, user: "", product: ""})
-    const [product, setProduct] = React.useState(localStorage.getItem('productDetail'))
+    const [product, setProduct] = React.useState(sessionStorage.getItem('productDetail'))
 
     React.useEffect(() => {
-      let orderArr = JSON.parse(localStorage.getItem("orders"))
+      let orderArr = JSON.parse(sessionStorage.getItem("orders"))
       let order1 = orderArr[0]
       setOrder(order1)
 

@@ -3,9 +3,8 @@ import * as React from 'react';
 import "./Products.css"
 import { addProduct, deleteProduct, getCategory, getProducts } from '../../services/handleProducts';
 import AddProductForm from '../form/AddProductForm';
-import { Alert } from '../form/Helper';
+import { Alert, handleBuyHelper, handleSearchHelper, mapNewKeysProduct, validateProduct } from '../form/Helper';
 import { useNavigate } from 'react-router-dom';
-import { findAllAddress } from '../../services/handleAddress';
 import ProductSearch from './ProductSearch';
 import PrimarySearchAppBar from '../navbar/PrimarySearchAppBar';
 
@@ -18,6 +17,8 @@ export default function AddProduct(props) {
     const [severity, setSeverity] = React.useState("success")
     const [categories, setCategories] = React.useState([])
     const [category, setCategory] = React.useState({ value: "", label: ""})
+    const [errors, setErrors] = React.useState({});
+    const isAdmin = sessionStorage.getItem('isAdmin')
     const [products, setProducts] = React.useState([{
           "name": "",
           "category": "",
@@ -57,6 +58,24 @@ export default function AddProduct(props) {
     const handleSubmit = async (event) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
+      const newErrors = {...errors};
+      const formData = {};
+      for(let [name, value] of data) {
+          formData[name] = value;
+          validateProduct(name, value, newErrors, setErrors);
+      }
+      if(Object.keys(newErrors).length !== 0) {
+          setErrors(newErrors);
+          let mess = ''
+          let newKeys = mapNewKeysProduct(newErrors)
+          newKeys.forEach(v => {
+            mess = `${mess} '${v}'`
+          })
+          setMessage(`${mess} is empty or not matched with format`)
+          setOpen(true)
+          setSeverity('error')
+          return;
+      }
       var newData = {
         name: data.get('name'),
         category: data.get('category'),
@@ -91,26 +110,7 @@ export default function AddProduct(props) {
     }
 
     const handleBuy = (event, product) => {
-      event.preventDefault();
-      let user = JSON.parse(localStorage.getItem('profile'))
-      
-      let address = findAllAddress()
-      address.then(v => {
-        if (v.status) {
-          if (v.data.length !== 0) {
-            localStorage.setItem("address", JSON.stringify(v.data))
-          }
-          let order = {
-            quantity: 1,
-            user: user.id,
-            product: product.id
-          }
-          let arrOrder = JSON.stringify([order])
-          localStorage.setItem('orders', arrOrder)
-          navigate(`/order`)
-  
-        }
-      })
+      handleBuyHelper(event, product, setOpen, setMessage, setSeverity, navigate)
     }
   
     const handleDelete = async (event, product) => {
@@ -127,41 +127,14 @@ export default function AddProduct(props) {
     const onChange = (event) => {
       const name = event.target.name;
       const value = event.target.value
+      const newErrors = validateProduct(name, value, {...errors}, setErrors);
+      setErrors(newErrors)
       setProduct(values => ({...values, [name]: value}))
   }
 
 
   const handleSearch = (data) => {
-    let products = localStorage.getItem("products")
-    const val = data.target.value 
-    if (products === null && val !== null) {
-      setIsSearch(true)
-      let p = getProducts();
-      p.then(v => {
-        localStorage.setItem("products", JSON.stringify(v))
-
-        const value = v.filter(h => {
-          return h.name.includes(val)
-        })
-        setProducts(value)
-      });
-    } else if (val !== null) {
-      setIsSearch(true)
-      const prods = JSON.parse(products)
-      const value = prods.filter(v => {
-        return v.name.toLowerCase().includes(val.toLowerCase())
-      })
-      setProducts(value)
-    } else {
-      setIsSearch(false)
-      let p = getProducts();
-      p.then(v => {
-        setProducts(v)
-      })
-    }
-    if (val === null || val === '') {
-      setIsSearch(false)
-    }
+    handleSearchHelper(data, setIsSearch, setProducts)
   }
 
   const onChangeSelect = (data) => {
@@ -192,6 +165,7 @@ export default function AddProduct(props) {
     event.preventDefault();
     setOpenDialog(false)
   }
+
 
 
   return (
@@ -228,6 +202,7 @@ export default function AddProduct(props) {
             category={category}
             handleOnChange={onChange}
             handleOnChangeSelect={onChangeSelect}
+            errors={errors}
           /> : <ProductSearch 
                   products={products}
                   handleBuy={handleBuy}
@@ -235,7 +210,7 @@ export default function AddProduct(props) {
                   handleEdit={handleEdit}
                   handleDelete={handleDelete}
                   navigate={navigate}
-                  isAdmin={localStorage.getItem("isAdmin")}
+                  isAdmin={isAdmin}
                   handleOk={handleOk}
                   handleCloseDialog={handleCloseDialog}
                   openDialog={openDialog}

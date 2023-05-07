@@ -1,12 +1,12 @@
 import { Box, Container, CssBaseline, Snackbar, } from "@mui/material";
 import * as React from 'react'
-import { deleteProduct, getProductDetail, getProducts } from "../../services/handleProducts";
+import { getProductDetail } from "../../services/handleProducts";
 import PrimarySearchAppBar from "../navbar/PrimarySearchAppBar";
 import { useNavigate, useParams } from "react-router-dom";
 import { findAllAddress } from "../../services/handleAddress";
 import ProductFormDetail from "../form/ProductFormDetail";
 import ProductSearch from "./ProductSearch";
-import { Alert } from "../form/Helper";
+import { Alert, handleBuyHelper, handleCategoryHelperToggle, handleDeleteOk, handleSearchHelper } from "../form/Helper";
 import ToggleButtonCategory from "../toggleButton/ToggleButtonCategory";
 import ConfirmDialog from "../dialog/ConfirmDialog";
 
@@ -14,6 +14,7 @@ import ConfirmDialog from "../dialog/ConfirmDialog";
 export default function Product(props) {
     const [message, setMessage] = React.useState("")
     const [open, setOpen] = React.useState(false)
+    const isAdmin = sessionStorage.getItem('isAdmin')
     const [openDialog, setOpenDialog] = React.useState(false)
     const [category, setCategory] = React.useState('all');
     const [severity, setSeverity] = React.useState("success")
@@ -37,7 +38,7 @@ export default function Product(props) {
         "imageUrl": ""
     }
     ])
-    const [product, setProduct] = React.useState(localStorage.getItem('productDetail'))
+    const [product, setProduct] = React.useState(sessionStorage.getItem('productDetail'))
     const [isSearch, setIsSearch] = React.useState(false)
     const params = useParams()
     const navigate = useNavigate()
@@ -46,65 +47,16 @@ export default function Product(props) {
       const prod = getProductDetail(params.productId)
       prod.then(v => {
         setProduct(v)
-        localStorage.setItem('productDetail', v)
+        sessionStorage.setItem('productDetail', v)
       })
     }, [params])
 
     const handleSearch = (data) => {
-        let products = localStorage.getItem("products")
-        const val = data.target.value 
-        if (products === null && val !== null) {
-          setIsSearch(true)
-          let p = getProducts();
-          p.then(v => {
-            localStorage.setItem("products", JSON.stringify(v))
-  
-            const value = v.filter(h => {
-              return h.name.includes(val)
-            })
-            setProducts(value)
-          });
-        } else if (val !== null) {
-          setIsSearch(true)
-          const prods = JSON.parse(products)
-          const value = prods.filter(v => {
-            return v.name.toLowerCase().includes(val.toLowerCase())
-          })
-          setProducts(value)
-        } else {
-          setIsSearch(false)
-          let p = getProducts();
-          p.then(v => {
-            setProducts(v)
-          })
-        }
-        if (val === null || val === '') {
-          setIsSearch(false)
-        }
+        handleSearchHelper(data, setIsSearch, setProducts)
     }
 
     const handleCategory = (event, newCategory) => {
-      event.preventDefault();
-      setCategory(newCategory);
-      if (newCategory === 'all') {
-        let prods = getProducts();
-        prods.then(v => {
-          setProducts(v)
-        })
-      } else {
-        if (newCategory === null || newCategory === '') {
-          setIsSearch(false)
-        } else {
-          setIsSearch(true)
-        }
-        let prods = getProducts();
-        prods.then(k => {
-          let h = k.filter(v => {
-            return v.category === newCategory
-          })
-          setProducts(h)
-        })
-      }
+      handleCategoryHelperToggle(event, newCategory, setProducts, setIsSearch, setCategory)
     }
 
     const handleSubmit = (event) => {
@@ -131,7 +83,7 @@ export default function Product(props) {
               product: product.id
             }
             let arrOrder = JSON.stringify([order])
-            localStorage.setItem('orders', arrOrder)
+            sessionStorage.setItem('orders', arrOrder)
             navigate(`/order`)
         }
       })
@@ -139,7 +91,7 @@ export default function Product(props) {
 
     const handleClickDetail = (event, product) => {
       event.preventDefault();
-      localStorage.setItem("productDetail", product)
+      sessionStorage.setItem("productDetail", product)
       navigate(`/products/detail/${product.id}`)
     }
 
@@ -149,33 +101,7 @@ export default function Product(props) {
     }
 
     const handleBuy = (event, product) => {
-      event.preventDefault();
-      let user = JSON.parse(localStorage.getItem('profile'))
-
-      if (user === null) {
-        setOpen(true)
-        setMessage("Please login to continue")
-        setSeverity('error')
-        return
-      }
-      
-      let address = findAllAddress()
-      address.then(v => {
-        if (v.status) {
-          if (v.data.length !== 0) {
-            localStorage.setItem("address", JSON.stringify(v.data))
-          }
-          let order = {
-            quantity: 1,
-            user: user.id,
-            product: product.id
-          }
-          let arrOrder = JSON.stringify([order])
-          localStorage.setItem('orders', arrOrder)
-          navigate(`/order`)
-  
-        }
-      })
+      handleBuyHelper(event, product, setOpen, setMessage, setSeverity, navigate)
     }
 
     const handleClose = async (event) => {
@@ -190,23 +116,7 @@ export default function Product(props) {
     }
 
     const handleOk = async (event) => {
-      event.preventDefault();
-      let res = await deleteProduct(productDelete)
-      if (res.state) {
-        setOpen(true)
-        setMessage(`Product ${productDelete.name} deleted successfully`)
-        setSeverity('success')
-        let prods = getProducts();
-        prods.then(v => {
-          setProducts(v)
-        })
-        setOpenDialog(false)
-      } else {
-        setOpen(true)
-        setMessage(`Product ${productDelete.name} deleted failed`)
-        setSeverity('error')
-        setOpenDialog(false)
-      }
+      handleDeleteOk(event, productDelete, setProducts, setOpen, setMessage, setSeverity, setOpenDialog)
     }
 
     const handleCloseDialog = (event) => {
@@ -264,7 +174,7 @@ export default function Product(props) {
                       handleEdit={handleEdit}
                       handleDelete={handleDelete}
                       navigate={navigate}
-                      isAdmin={localStorage.getItem("isAdmin")}
+                      isAdmin={isAdmin}
                       handleOk={handleOk}
                       handleCloseDialog={handleCloseDialog}
                       openDialog={openDialog}

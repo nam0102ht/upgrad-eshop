@@ -90,6 +90,8 @@ export async function createAddress(address) {
         "user": userId
       });
 
+    console.log(raw)
+
     var requestOptions = {
     method: 'POST',
     body: raw,

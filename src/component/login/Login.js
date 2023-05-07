@@ -105,7 +105,7 @@ export default function Login() {
           severity={'error'}
         />
         <SnackbarCustom 
-          open={openFailure}
+          open={openPasswordFailure}
           handleClose={handleClose}
           message={'The password or email that is entered is wrong'}
           severity={'error'}
