@@ -4,8 +4,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Backend of this service
 
-Please clone and use it
-### [https://github.com/nam0102ht/ecommerce-upgrad-eshop-backend]
+Please clone and follow the way runs it as the backend API of this app
+#### [https://github.com/nam0102ht/ecommerce-upgrad-eshop-backend]
 
 
 ## Available Scripts
@@ -35,15 +35,41 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+### About this structure project
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+project structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+``` bash
+.
+├── node_modules            # Compiled files (alternatively `dist`)
+├── public                  # Documentation files (alternatively `doc`)
+├── src                     # Source files (alternatively `lib` or `app`)
+├── package-lock.json       
+├── package.json                
+└── README.md
+```
+component structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+``` bash
+.
+├── ...                  
+├── src
+│   ├── adress              # Source contained the stepper address
+│   ├── cards               # Source contained the card product
+│   ├── confirmOrder        # Source contained the latest stepper confirm address and product before submiting order        
+│   ├── dialog              # Source contained component of the dialog confirm before deleting product
+│   ├── form                # Source contained component of the add/modify product and productFormDetail of page detail
+│   ├── login               # Source contained component of the login function
+│   ├── navbar              # Source contained component of the navbar contained the logo and search bar and function AddProduct/home/logout
+│   ├── orders              # Source contained component of stepper order and orderProduct detail
+│   ├── products            # Source contained component of add/modify/delete/detail product and function of search product
+│   ├── register            # Source contained component of register as role user
+│   ├── sortBy              # Source contained component sortby function component
+│   └── toggleButton        # Source contained component toggle allow user search by categories
+├── ...               
+└── README.md
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
 
 ## Learn More
 

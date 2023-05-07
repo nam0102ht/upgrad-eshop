@@ -26,7 +26,7 @@ export default function Register() {
           firstName: data.get('firstName'),
           lastName: data.get('lastName'),
           contactNumber: data.get("contactNumber"),
-          role: ['ADMIN']
+          role: ['USER']
         }
         signUp(signUpData, navigate)
       };
