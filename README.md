@@ -2,6 +2,11 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Members work this project
+(Nguyen Trung Nhat Nam) [nguyentrungnhatnam@gmail.com]
+(Vivek V Pai) [vishwasvkumar5@gmail.com]
+(Priyam Gupta) [Priyamgupta49@gmail.com]
+
 ## Backend of this service
 
 Please clone and follow the way runs it as the backend API of this app
