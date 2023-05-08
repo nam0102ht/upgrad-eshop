@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Register from './register/Register';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { CssBaseline } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import Login from './login/Login';
@@ -40,6 +40,7 @@ function App() {
       <CssBaseline>
         <div className="App">
             <Routes>
+              <Route path="/" element={ <Navigate to="/home" />} />
               <Route path="/login" element={<Login />} />
               <Route path="signup" element={<Register />} />
               <Route path="home" element={<Products />} />
