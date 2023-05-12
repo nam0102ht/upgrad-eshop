@@ -16,8 +16,9 @@ Please clone and follow the way runs it as the backend API of this app
 #### [https://github.com/nam0102ht/ecommerce-upgrad-eshop-backend]
 
 User this informations for login as role administrator:
-"email" : "admin@upgrad.com"
-"password": "Admin@123"
+
+`"email" : "admin@upgrad.com"
+"password": "Admin@123"`
 
 ## Available Scripts
 
